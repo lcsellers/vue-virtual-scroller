@@ -26,7 +26,7 @@
       <div
         v-for="view of pool"
         :key="view.nr.id"
-        :style="ready ? { transform: `translate${direction === 'vertical' ? 'Y' : 'X'}(${view.position}px)` } : null"
+        :style="viewStyle(view)"
         class="vue-recycle-scroller__item-view"
         :class="{ hover: hoverKey === view.nr.key }"
         @mouseenter="hoverKey = view.nr.key"
@@ -115,6 +115,11 @@ export default {
     emitUpdate: {
       type: Boolean,
       default: false,
+    },
+
+    useTranslate: {
+      type: Boolean,
+      default: true,
     },
   },
 
@@ -557,6 +562,26 @@ export default {
         console.log(`Make sure the scroller has a fixed height (or width) and 'overflow-y' (or 'overflow-x') set to 'auto' so it can scroll correctly and only render the items visible in the scroll viewport.`)
       })
       throw new Error('Rendered items limit reached')
+    },
+
+    viewStyle (view) {
+      if (this.ready) {
+        if (this.useTranslate) {
+          return {
+            transform: `translate${this.direction === 'vertical' ? 'Y' : 'X'}(${view.position}px)`,
+          }
+        }
+        const style = {
+          willChange: 'unset',
+        }
+        if (this.direction === 'vertical') {
+          style.top = `${view.position}px`
+        } else {
+          style.left = `${view.position}px`
+        }
+        return style
+      }
+      return null
     },
   },
 }
